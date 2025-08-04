@@ -1,0 +1,63 @@
+name: Fetch Police Alerts
+
+on:
+  schedule:
+    # Run every 5 minutes (UTC time)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual triggering
+  push:
+    branches: [ main, master ]
+
+jobs:
+  fetch-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Debug Info
+      run: |
+        echo "Workflow triggered at: $(date)"
+        echo "GitHub Event: ${{ github.event_name }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref }}"
+        echo "Commit: ${{ github.sha }}"
+      
+    - name: Test Supabase Connection
+      run: |
+        echo "Testing connection to Supabase function..."
+        test_response=$(curl -s -o /dev/null -w "%{http_code}" "https://atlmbgnawococyysdtpr.supabase.co/functions/v1/fetch-police-alerts")
+        echo "Connection test status code: $test_response"
+        if [ "$test_response" -eq 401 ] || [ "$test_response" -eq 403 ]; then
+          echo "⚠️  Function is accessible but requires authentication (expected)"
+        elif [ "$test_response" -eq 404 ]; then
+          echo "❌ Function not found - check the URL"
+          exit 1
+        else
+          echo "✅ Function is accessible"
+        fi
+        
+    - name: Fetch Police Alerts
+      run: |
+        echo "Starting police alerts fetch at $(date)"
+        response=$(curl -s -w "\n%{http_code}" -X POST "https://atlmbgnawococyysdtpr.supabase.co/functions/v1/fetch-police-alerts" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bG1iZ25hd29jb2N5eXNkdHByIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDAwMzkyMSwiZXhwIjoyMDY5NTc5OTIxfQ.jJ4xbDHyPlBdaCR-rnzPhVSBSajtWlmdaN2VUp5rffM" \
+          -H "Content-Type: application/json" \
+          --max-time 300)
+        
+        # Extract response body and status code
+        http_code=$(echo "$response" | tail -n1)
+        response_body=$(echo "$response" | head -n -1)
+        
+        echo "HTTP Status Code: $http_code"
+        echo "Response: $response_body"
+        
+        if [ "$http_code" -eq 200 ]; then
+          echo "✅ Police alerts fetch completed successfully at $(date)"
+        else
+          echo "❌ Police alerts fetch failed with status code $http_code at $(date)"
+          echo "Full response: $response_body"
+          exit 1
+        fi 
