@@ -24,6 +24,7 @@ jobs:
         echo "Repository: ${{ github.repository }}"
         echo "Branch: ${{ github.ref }}"
         echo "Commit: ${{ github.sha }}"
+        echo "This will make 50 API calls across continental US regions"
       
     - name: Test Supabase Connection
       run: |
