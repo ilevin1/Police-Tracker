@@ -10,7 +10,7 @@ on:
 jobs:
   fetch-alerts:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     
     steps:
     - name: Checkout code
@@ -22,7 +22,7 @@ jobs:
         response=$(curl -s -w "\n%{http_code}" -X POST "https://atlmbgnawococyysdtpr.supabase.co/functions/v1/fetch-police-alerts" \
           -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bG1iZ25hd29jb2N5eXNkdHByIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDAwMzkyMSwiZXhwIjoyMDY5NTc5OTIxfQ.jJ4xbDHyPlBdaCR-rnzPhVSBSajtWlmdaN2VUp5rffM" \
           -H "Content-Type: application/json" \
-          --max-time 300)
+          --max-time 600)
         
         http_code=$(echo "$response" | tail -n1)
         response_body=$(echo "$response" | head -n -1)
