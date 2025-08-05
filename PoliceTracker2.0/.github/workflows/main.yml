@@ -1,4 +1,4 @@
-name: Police Alerts
+name: Fetch Police Alerts
 
 on:
   schedule:
