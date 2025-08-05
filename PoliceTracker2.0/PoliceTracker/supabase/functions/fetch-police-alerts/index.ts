@@ -8,99 +8,135 @@ const corsHeaders = {
 
 const WAZE_API_KEY = Deno.env.get('WAZE_API_KEY') || 'cac49e506cmshca87db8d041fef6p1a8300jsn241ae3472023';
 
-// 50 regions covering the continental US - more granular coverage
-const regions = [
-  // Pacific Northwest (5 regions)
-  { name: 'WA-North', bottom_left: '47.000000,-125.000000', top_right: '49.000000,-120.000000' },
-  { name: 'WA-South', bottom_left: '45.000000,-125.000000', top_right: '47.000000,-120.000000' },
-  { name: 'OR-North', bottom_left: '44.000000,-125.000000', top_right: '46.000000,-120.000000' },
-  { name: 'OR-South', bottom_left: '42.000000,-125.000000', top_right: '44.000000,-120.000000' },
-  { name: 'ID-West', bottom_left: '42.000000,-120.000000', top_right: '46.000000,-116.000000' },
-  
-  // California (8 regions)
-  { name: 'CA-North', bottom_left: '40.000000,-125.000000', top_right: '42.000000,-120.000000' },
-  { name: 'CA-BayArea', bottom_left: '37.000000,-123.000000', top_right: '39.000000,-120.000000' },
-  { name: 'CA-Central', bottom_left: '35.000000,-122.000000', top_right: '37.000000,-118.000000' },
-  { name: 'CA-South', bottom_left: '32.500000,-121.000000', top_right: '35.000000,-116.000000' },
-  { name: 'CA-SanDiego', bottom_left: '32.500000,-118.000000', top_right: '34.000000,-114.000000' },
-  { name: 'CA-Inland', bottom_left: '34.000000,-120.000000', top_right: '36.000000,-116.000000' },
-  { name: 'CA-Desert', bottom_left: '32.500000,-116.000000', top_right: '35.000000,-114.000000' },
-  { name: 'CA-Mountains', bottom_left: '36.000000,-120.000000', top_right: '38.000000,-116.000000' },
-  
-  // Southwest (6 regions)
-  { name: 'AZ-North', bottom_left: '34.000000,-114.000000', top_right: '37.000000,-109.000000' },
-  { name: 'AZ-South', bottom_left: '31.000000,-114.000000', top_right: '34.000000,-109.000000' },
-  { name: 'NM-North', bottom_left: '34.000000,-109.000000', top_right: '37.000000,-103.000000' },
-  { name: 'NM-South', bottom_left: '31.000000,-109.000000', top_right: '34.000000,-103.000000' },
-  { name: 'NV-West', bottom_left: '35.000000,-120.000000', top_right: '38.000000,-114.000000' },
-  { name: 'NV-East', bottom_left: '35.000000,-114.000000', top_right: '38.000000,-109.000000' },
-  
-  // Texas (8 regions)
-  { name: 'TX-Panhandle', bottom_left: '34.000000,-107.000000', top_right: '37.000000,-100.000000' },
-  { name: 'TX-North', bottom_left: '31.000000,-107.000000', top_right: '34.000000,-100.000000' },
-  { name: 'TX-Central', bottom_left: '28.000000,-107.000000', top_right: '31.000000,-100.000000' },
-  { name: 'TX-South', bottom_left: '26.000000,-107.000000', top_right: '29.000000,-100.000000' },
-  { name: 'TX-East', bottom_left: '28.000000,-100.000000', top_right: '31.000000,-93.500000' },
-  { name: 'TX-Southeast', bottom_left: '26.000000,-100.000000', top_right: '29.000000,-93.500000' },
-  { name: 'TX-Gulf', bottom_left: '26.000000,-97.000000', top_right: '29.000000,-93.500000' },
-  { name: 'TX-West', bottom_left: '29.000000,-105.000000', top_right: '32.000000,-100.000000' },
-  
-  // Great Plains (6 regions)
-  { name: 'OK-North', bottom_left: '35.000000,-100.000000', top_right: '37.000000,-93.500000' },
-  { name: 'OK-South', bottom_left: '33.000000,-100.000000', top_right: '35.000000,-93.500000' },
-  { name: 'KS-North', bottom_left: '38.000000,-102.000000', top_right: '40.000000,-93.500000' },
-  { name: 'KS-South', bottom_left: '36.000000,-102.000000', top_right: '38.000000,-93.500000' },
-  { name: 'NE-West', bottom_left: '40.000000,-104.000000', top_right: '43.000000,-98.000000' },
-  { name: 'NE-East', bottom_left: '40.000000,-98.000000', top_right: '43.000000,-93.500000' },
-  
-  // Upper Midwest (5 regions)
-  { name: 'MN-North', bottom_left: '46.000000,-97.000000', top_right: '49.000000,-89.000000' },
-  { name: 'MN-South', bottom_left: '43.000000,-97.000000', top_right: '46.000000,-89.000000' },
-  { name: 'WI-North', bottom_left: '44.000000,-93.500000', top_right: '47.000000,-87.000000' },
-  { name: 'WI-South', bottom_left: '42.000000,-93.500000', top_right: '45.000000,-87.000000' },
-  { name: 'MI-Upper', bottom_left: '45.000000,-90.000000', top_right: '49.000000,-82.000000' },
-  
-  // Lower Midwest (4 regions)
-  { name: 'IA-North', bottom_left: '42.000000,-96.000000', top_right: '44.000000,-90.000000' },
-  { name: 'IA-South', bottom_left: '40.000000,-96.000000', top_right: '42.000000,-90.000000' },
-  { name: 'IL-North', bottom_left: '40.000000,-90.000000', top_right: '42.000000,-87.000000' },
-  { name: 'IL-South', bottom_left: '37.000000,-90.000000', top_right: '40.000000,-87.000000' },
-  
-  // Northeast (6 regions)
-  { name: 'NY-North', bottom_left: '42.000000,-79.000000', top_right: '45.000000,-73.000000' },
-  { name: 'NY-South', bottom_left: '40.000000,-79.000000', top_right: '43.000000,-73.000000' },
-  { name: 'PA-West', bottom_left: '39.000000,-82.000000', top_right: '42.000000,-77.000000' },
-  { name: 'PA-East', bottom_left: '39.000000,-77.000000', top_right: '42.000000,-73.000000' },
-  { name: 'MA-East', bottom_left: '41.000000,-73.000000', top_right: '43.000000,-69.000000' },
-  { name: 'ME-South', bottom_left: '43.000000,-71.000000', top_right: '45.000000,-66.000000' },
-  
-  // Mid-Atlantic (3 regions)
-  { name: 'MD-North', bottom_left: '38.000000,-79.000000', top_right: '40.000000,-75.000000' },
-  { name: 'MD-South', bottom_left: '37.000000,-79.000000', top_right: '39.000000,-75.000000' },
-  { name: 'VA-North', bottom_left: '37.000000,-82.000000', top_right: '39.000000,-77.000000' },
-  
-  // Southeast (6 regions)
-  { name: 'NC-North', bottom_left: '35.000000,-82.000000', top_right: '37.000000,-77.000000' },
-  { name: 'NC-South', bottom_left: '33.000000,-82.000000', top_right: '35.000000,-77.000000' },
-  { name: 'SC-North', bottom_left: '33.000000,-82.000000', top_right: '35.000000,-78.000000' },
-  { name: 'SC-South', bottom_left: '31.000000,-82.000000', top_right: '33.000000,-78.000000' },
-  { name: 'GA-North', bottom_left: '32.000000,-85.000000', top_right: '34.000000,-80.000000' },
-  { name: 'GA-South', bottom_left: '30.000000,-85.000000', top_right: '32.000000,-80.000000' },
-  
-  // Florida (3 regions)
-  { name: 'FL-North', bottom_left: '29.000000,-87.500000', top_right: '31.000000,-82.000000' },
-  { name: 'FL-Central', bottom_left: '27.000000,-87.500000', top_right: '29.000000,-82.000000' },
-  { name: 'FL-South', bottom_left: '24.500000,-87.500000', top_right: '27.000000,-82.000000' },
-  
-  // Mountain West (3 regions)
-  { name: 'CO-North', bottom_left: '39.000000,-109.000000', top_right: '42.000000,-102.000000' },
-  { name: 'CO-South', bottom_left: '37.000000,-109.000000', top_right: '40.000000,-102.000000' },
-  { name: 'UT-West', bottom_left: '37.000000,-114.000000', top_right: '40.000000,-109.000000' },
-  
-  // Central Rockies (2 regions)
-  { name: 'WY-South', bottom_left: '41.000000,-111.000000', top_right: '43.000000,-104.000000' },
-  { name: 'MT-South', bottom_left: '44.000000,-116.000000', top_right: '47.000000,-109.000000' }
+// 5 broad regions covering the entire continental US
+const broadRegions = [
+  { name: 'West-Coast', bottom_left: '24.500000,-125.000000', top_right: '49.000000,-114.000000' },
+  { name: 'Central-West', bottom_left: '24.500000,-114.000000', top_right: '49.000000,-93.500000' },
+  { name: 'Central-East', bottom_left: '24.500000,-93.500000', top_right: '49.000000,-82.000000' },
+  { name: 'Northeast', bottom_left: '39.000000,-82.000000', top_right: '49.000000,-66.000000' },
+  { name: 'Southeast', bottom_left: '24.500000,-87.500000', top_right: '39.000000,-75.000000' }
 ];
+
+// Major cities with focused coverage
+const majorCities = [
+  // California
+  { name: 'Los-Angeles', bottom_left: '33.700000,-118.500000', top_right: '34.300000,-118.000000' },
+  { name: 'San-Francisco', bottom_left: '37.700000,-122.500000', top_right: '37.800000,-122.400000' },
+  { name: 'San-Diego', bottom_left: '32.700000,-117.200000', top_right: '32.800000,-117.000000' },
+  { name: 'Sacramento', bottom_left: '38.500000,-121.600000', top_right: '38.600000,-121.400000' },
+  
+  // Texas
+  { name: 'Houston', bottom_left: '29.600000,-95.600000', top_right: '29.800000,-95.200000' },
+  { name: 'Dallas', bottom_left: '32.700000,-97.000000', top_right: '32.900000,-96.600000' },
+  { name: 'Austin', bottom_left: '30.200000,-97.800000', top_right: '30.400000,-97.600000' },
+  { name: 'San-Antonio', bottom_left: '29.400000,-98.600000', top_right: '29.600000,-98.400000' },
+  
+  // New York
+  { name: 'New-York-City', bottom_left: '40.600000,-74.200000', top_right: '40.800000,-73.700000' },
+  { name: 'Buffalo', bottom_left: '42.800000,-79.000000', top_right: '43.000000,-78.800000' },
+  
+  // Florida
+  { name: 'Miami', bottom_left: '25.700000,-80.400000', top_right: '25.900000,-80.100000' },
+  { name: 'Orlando', bottom_left: '28.400000,-81.600000', top_right: '28.600000,-81.300000' },
+  { name: 'Tampa', bottom_left: '27.900000,-82.600000', top_right: '28.100000,-82.400000' },
+  
+  // Illinois
+  { name: 'Chicago', bottom_left: '41.700000,-87.800000', top_right: '42.000000,-87.500000' },
+  
+  // Pennsylvania
+  { name: 'Philadelphia', bottom_left: '39.900000,-75.300000', top_right: '40.100000,-75.000000' },
+  { name: 'Pittsburgh', bottom_left: '40.400000,-80.100000', top_right: '40.600000,-79.800000' },
+  
+  // Michigan
+  { name: 'Detroit', bottom_left: '42.300000,-83.200000', top_right: '42.500000,-82.900000' },
+  
+  // Ohio
+  { name: 'Cleveland', bottom_left: '41.400000,-81.800000', top_right: '41.600000,-81.500000' },
+  { name: 'Columbus', bottom_left: '39.900000,-83.100000', top_right: '40.100000,-82.900000' },
+  
+  // Georgia
+  { name: 'Atlanta', bottom_left: '33.600000,-84.600000', top_right: '33.800000,-84.300000' },
+  
+  // North Carolina
+  { name: 'Charlotte', bottom_left: '35.100000,-80.900000', top_right: '35.300000,-80.700000' },
+  
+  // Tennessee
+  { name: 'Nashville', bottom_left: '36.100000,-86.900000', top_right: '36.300000,-86.700000' },
+  { name: 'Memphis', bottom_left: '35.000000,-90.200000', top_right: '35.200000,-89.900000' },
+  
+  // Louisiana
+  { name: 'New-Orleans', bottom_left: '29.900000,-90.200000', top_right: '30.100000,-89.900000' },
+  
+  // Missouri
+  { name: 'St-Louis', bottom_left: '38.500000,-90.400000', top_right: '38.700000,-90.100000' },
+  { name: 'Kansas-City', bottom_left: '39.000000,-94.800000', top_right: '39.200000,-94.500000' },
+  
+  // Colorado
+  { name: 'Denver', bottom_left: '39.600000,-105.200000', top_right: '39.800000,-104.800000' },
+  
+  // Arizona
+  { name: 'Phoenix', bottom_left: '33.300000,-112.200000', top_right: '33.500000,-111.900000' },
+  
+  // Nevada
+  { name: 'Las-Vegas', bottom_left: '36.100000,-115.300000', top_right: '36.300000,-115.000000' },
+  
+  // Washington
+  { name: 'Seattle', bottom_left: '47.500000,-122.500000', top_right: '47.700000,-122.200000' },
+  
+  // Oregon
+  { name: 'Portland', bottom_left: '45.400000,-122.800000', top_right: '45.600000,-122.500000' },
+  
+  // Massachusetts
+  { name: 'Boston', bottom_left: '42.300000,-71.200000', top_right: '42.500000,-70.900000' },
+  
+  // Maryland
+  { name: 'Baltimore', bottom_left: '39.200000,-76.800000', top_right: '39.400000,-76.500000' },
+  
+  // Virginia
+  { name: 'Richmond', bottom_left: '37.400000,-77.600000', top_right: '37.600000,-77.300000' },
+  
+  // South Carolina
+  { name: 'Charleston', bottom_left: '32.700000,-80.100000', top_right: '32.900000,-79.800000' },
+  
+  // Alabama
+  { name: 'Birmingham', bottom_left: '33.400000,-87.000000', top_right: '33.600000,-86.700000' },
+  
+  // Mississippi
+  { name: 'Jackson', bottom_left: '32.200000,-90.300000', top_right: '32.400000,-90.000000' },
+  
+  // Arkansas
+  { name: 'Little-Rock', bottom_left: '34.600000,-92.400000', top_right: '34.800000,-92.100000' },
+  
+  // Oklahoma
+  { name: 'Oklahoma-City', bottom_left: '35.400000,-97.600000', top_right: '35.600000,-97.300000' },
+  
+  // Kansas
+  { name: 'Wichita', bottom_left: '37.600000,-97.400000', top_right: '37.800000,-97.100000' },
+  
+  // Nebraska
+  { name: 'Omaha', bottom_left: '41.200000,-96.200000', top_right: '41.400000,-95.900000' },
+  
+  // Iowa
+  { name: 'Des-Moines', bottom_left: '41.500000,-93.800000', top_right: '41.700000,-93.500000' },
+  
+  // Minnesota
+  { name: 'Minneapolis', bottom_left: '44.900000,-93.400000', top_right: '45.100000,-93.100000' },
+  
+  // Wisconsin
+  { name: 'Milwaukee', bottom_left: '43.000000,-88.200000', top_right: '43.200000,-87.900000' },
+  
+  // Indiana
+  { name: 'Indianapolis', bottom_left: '39.700000,-86.300000', top_right: '39.900000,-86.000000' },
+  
+  // Kentucky
+  { name: 'Louisville', bottom_left: '38.200000,-85.900000', top_right: '38.400000,-85.600000' },
+  
+  // West Virginia
+  { name: 'Charleston-WV', bottom_left: '38.300000,-81.800000', top_right: '38.500000,-81.500000' }
+];
+
+// Combine both arrays
+const regions = [...broadRegions, ...majorCities];
 
 async function fetchAlerts(bottomLeft: string, topRight: string) {
   const params = new URLSearchParams({
@@ -144,7 +180,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting police alerts fetch for 50 regions');
+    console.log(`Starting police alerts fetch for ${regions.length} regions (5 broad + ${majorCities.length} major cities)`);
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -173,7 +209,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Fetch complete: ${allAlerts.length} total alerts from ${successfulRegions}/50 regions`);
+    console.log(`Fetch complete: ${allAlerts.length} total alerts from ${successfulRegions}/${regions.length} regions`);
 
     // Remove duplicates based on alert_id before processing
     const uniqueAlerts = allAlerts.filter((alert, index, self) => 
@@ -245,7 +281,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Processed ${alertsToInsert.length} alerts from ${successfulRegions}/50 regions`,
+        message: `Processed ${alertsToInsert.length} alerts from ${successfulRegions}/${regions.length} regions (5 broad + ${majorCities.length} cities)`,
         timestamp: estNow.toISOString(),
         stats: {
           totalAlerts: alertsToInsert.length,
