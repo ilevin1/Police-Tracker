@@ -1,0 +1,38 @@
+name: Fetch Police Alerts
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  fetch-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Fetch Police Alerts
+      run: |
+        echo "Starting police alerts fetch at $(date)"
+        response=$(curl -s -w "\n%{http_code}" -X POST "https://atlmbgnawococyysdtpr.supabase.co/functions/v1/fetch-police-alerts" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bG1iZ25hd29jb2N5eXNkdHByIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDAwMzkyMSwiZXhwIjoyMDY5NTc5OTIxfQ.jJ4xbDHyPlBdaCR-rnzPhVSBSajtWlmdaN2VUp5rffM" \
+          -H "Content-Type: application/json" \
+          --max-time 600)
+        
+        http_code=$(echo "$response" | tail -n1)
+        response_body=$(echo "$response" | head -n -1)
+        
+        echo "HTTP Status Code: $http_code"
+        echo "Response: $response_body"
+        
+        if [ "$http_code" -eq 200 ]; then
+          echo "✅ Police alerts fetch completed successfully at $(date)"
+        else
+          echo "❌ Police alerts fetch failed with status code $http_code at $(date)"
+          exit 1
+        fi 
