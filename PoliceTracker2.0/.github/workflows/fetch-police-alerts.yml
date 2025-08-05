@@ -2,23 +2,16 @@ name: Fetch Police Alerts
 
 on:
   schedule:
-    # Run every 5 minutes (UTC time) - GitHub Actions may have delays
+    # Run every 5 minutes (UTC time)
     - cron: '*/5 * * * *'
   workflow_dispatch: # Allow manual triggering
   push:
     branches: [ main, master ]
-  # Add repository_dispatch for external triggers
-  repository_dispatch:
-    types: [fetch_alerts]
 
 jobs:
   fetch-alerts:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # Add retry logic for failed runs
-    strategy:
-      fail-fast: false
-      max-parallel: 1
+    timeout-minutes: 10
     
     steps:
     - name: Checkout code
