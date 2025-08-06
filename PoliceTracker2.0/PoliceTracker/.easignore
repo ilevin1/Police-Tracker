@@ -1,0 +1,47 @@
+# EAS Build ignore file
+# Exclude system and problematic directories
+
+# macOS system files
+.DS_Store
+.Trash/
+.Trashes/
+Library/
+~/Library/
+../*
+../
+
+# Node modules and build directories
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Git directory
+.git/
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Environment files
+.env*.local
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Native build artifacts
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
