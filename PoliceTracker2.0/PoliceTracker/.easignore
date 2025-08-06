@@ -7,8 +7,15 @@
 .Trashes/
 Library/
 ~/Library/
-../*
-../
+../../*
+../../../*
+../../../../*
+../../../../../*
+
+# System paths that might be picked up
+/Users/*/Library/
+/System/
+/Library/
 
 # Node modules and build directories
 node_modules/
