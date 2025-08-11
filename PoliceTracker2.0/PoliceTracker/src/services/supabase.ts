@@ -28,7 +28,7 @@ export async function getAllPoliceAlerts(): Promise<PoliceAlert[]> {
   // Supabase has a default limit of 1000, so we need to fetch in batches
   let allAlerts: PoliceAlert[] = [];
   let offset = 0;
-  const batchSize = 2000; // Increased from 1000 to handle larger datasets
+  const batchSize = 1000; // Use 1000 to match Supabase's default limit
   let hasMore = true;
   let batchCount = 0;
 
@@ -314,3 +314,41 @@ export class PoliceAlertService {
     return data || [];
   }
 } 
+
+// Fetch police alerts within a geographic bounding box
+export async function getPoliceAlertsByBounds(
+  bounds: { north: number; south: number; east: number; west: number },
+  options?: { sinceIso?: string; limit?: number; subtype?: 'POLICE_HIDING' | 'ALL' }
+): Promise<PoliceAlert[]> {
+  const { north, south, east, west } = bounds;
+  const limit = options?.limit ?? 1000;
+  const subtype = options?.subtype ?? 'ALL';
+
+  let query = supabase
+    .from('police_alerts')
+    .select('*')
+    .gte('latitude', south)
+    .lte('latitude', north)
+    .gte('longitude', west)
+    .lte('longitude', east)
+    .eq('type', 'POLICE');
+
+  if (options?.sinceIso) {
+    query = query.gte('publish_datetime_utc', options.sinceIso);
+  }
+
+  if (subtype === 'POLICE_HIDING') {
+    query = query.eq('subtype', 'POLICE_HIDING');
+  }
+
+  const { data, error } = await query
+    .order('publish_datetime_utc', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching police alerts by bounds:', error);
+    throw error;
+  }
+
+  return data || [];
+}

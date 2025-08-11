@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/vercel-scheduler.js": {
+      "maxDuration": 30
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/vercel-scheduler",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+} 

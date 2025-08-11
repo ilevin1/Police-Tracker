@@ -1,7 +1,6 @@
 {
   "cli": {
-    "version": ">= 5.9.1",
-    "appVersionSource": "local"
+    "version": ">= 5.9.1"
   },
   "build": {
     "development": {
@@ -18,9 +17,6 @@
       }
     },
     "production": {
-      "android": {
-        "buildType": "app-bundle"
-      },
       "ios": {
         "resourceClass": "m-medium"
       }

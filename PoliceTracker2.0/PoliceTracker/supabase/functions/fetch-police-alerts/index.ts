@@ -32,6 +32,7 @@ const majorCities = [
   
   // Florida
   { name: 'Miami', bottom_left: '25.700000,-80.400000', top_right: '25.900000,-80.100000' },
+  { name: 'Orlando', bottom_left: '28.400000,-81.600000', top_right: '28.600000,-81.300000' },
   
   // Illinois
   { name: 'Chicago', bottom_left: '41.700000,-87.800000', top_right: '42.000000,-87.500000' },
@@ -70,10 +71,7 @@ const majorCities = [
   { name: 'Boston', bottom_left: '42.300000,-71.200000', top_right: '42.500000,-70.900000' },
   
   // Maryland
-  { name: 'Baltimore', bottom_left: '39.200000,-76.800000', top_right: '39.400000,-76.500000' },
-  
-  // Virginia
-  { name: 'Richmond', bottom_left: '37.400000,-77.600000', top_right: '37.600000,-77.300000' }
+  { name: 'Baltimore', bottom_left: '39.200000,-76.800000', top_right: '39.400000,-76.500000' }
 ];
 
 // Combine both arrays
