@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.isaacglevin.PoliceTracker"
     },
     "permissions": [
       "android.permission.ACCESS_COARSE_LOCATION",
